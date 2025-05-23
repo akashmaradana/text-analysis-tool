@@ -8,16 +8,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import torch
 
 # Download required NLTK data
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('maxent_ne_chunker')
-nltk.download('words')
+try:
+    nltk.data.find('tokenizers/punkt')
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('punkt', quiet=True)
+    nltk.download('stopwords', quiet=True)
+    nltk.download('averaged_perceptron_tagger', quiet=True)
+    nltk.download('maxent_ne_chunker', quiet=True)
+    nltk.download('words', quiet=True)
 
 # Load spaCy model
 try:
     nlp = spacy.load('en_core_web_sm')
-except:
+except OSError:
     spacy.cli.download('en_core_web_sm')
     nlp = spacy.load('en_core_web_sm')
 
