@@ -18,21 +18,33 @@ except LookupError:
     nltk.download('maxent_ne_chunker', quiet=True)
     nltk.download('words', quiet=True)
 
-# Load spaCy model
-try:
-    nlp = spacy.load('en_core_web_sm')
-except OSError:
-    spacy.cli.download('en_core_web_sm')
-    nlp = spacy.load('en_core_web_sm')
-
 class TextAnalyzer:
     def __init__(self):
-        try:
-            self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-            self.sentiment_analyzer = pipeline("sentiment-analysis")
-        except Exception as e:
-            print(f"Error initializing models: {str(e)}")
-            raise
+        self._summarizer = None
+        self._sentiment_analyzer = None
+        self._nlp = None
+    
+    @property
+    def summarizer(self):
+        if self._summarizer is None:
+            self._summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+        return self._summarizer
+    
+    @property
+    def sentiment_analyzer(self):
+        if self._sentiment_analyzer is None:
+            self._sentiment_analyzer = pipeline("sentiment-analysis")
+        return self._sentiment_analyzer
+    
+    @property
+    def nlp(self):
+        if self._nlp is None:
+            try:
+                self._nlp = spacy.load('en_core_web_sm')
+            except OSError:
+                spacy.cli.download('en_core_web_sm')
+                self._nlp = spacy.load('en_core_web_sm')
+        return self._nlp
         
     def summarize_text(self, text, max_length=130, min_length=30):
         """Generate a summary of the input text."""
@@ -80,7 +92,7 @@ class TextAnalyzer:
     def extract_entities(self, text):
         """Extract named entities from the text using spaCy."""
         try:
-            doc = nlp(text)
+            doc = self.nlp(text)
             entities = []
             for ent in doc.ents:
                 entities.append({
