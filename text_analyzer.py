@@ -1,4 +1,4 @@
-from transformers import pipeline, AutoTokenizer, AutoModelForSeq2SeqSummary
+from transformers import pipeline
 import nltk
 from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
@@ -27,8 +27,12 @@ except OSError:
 
 class TextAnalyzer:
     def __init__(self):
-        self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-        self.sentiment_analyzer = pipeline("sentiment-analysis")
+        try:
+            self.summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+            self.sentiment_analyzer = pipeline("sentiment-analysis")
+        except Exception as e:
+            print(f"Error initializing models: {str(e)}")
+            raise
         
     def summarize_text(self, text, max_length=130, min_length=30):
         """Generate a summary of the input text."""
